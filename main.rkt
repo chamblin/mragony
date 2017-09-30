@@ -60,13 +60,14 @@
     [(< (length notifications) 2) #f]
     [else (distant-notifications? notifications)]))
 
+(define (user-name-for-notification-set notifications)
+  (hash-ref em-folks (notification-user-id (first notifications))))
+
 (let* ([notifications (hash-ref response 'notifications)]
        [em-notifications (filter (lambda (n) (member (notification-user-id n) (hash-keys em-folks))) notifications)]
-       [notifications-by-user (group-by notification-user-id em-notifications)])
-  (for-each
-    (lambda (users-notifications)
-      (let* ([user-id (notification-user-id (first users-notifications))])
-        (when (was-a-crappy-night? users-notifications)
-          (send-message (string-append user-id " had a crappy night.")))))
-    notifications-by-user))
-
+       [notifications-by-user (group-by notification-user-id em-notifications)]
+       [notification-sets-that-were-crappy (filter was-a-crappy-night? notifications-by-user)]
+       [users-that-had-a-crappy-night (map user-name-for-notification-set notification-sets-that-were-crappy)])
+  (if (empty? users-that-had-a-crappy-night)
+    (send-message "Nobody had a crappy night")
+    (send-message (string-append (string-join users-that-had-a-crappy-night ", ") " had a crappy on-call last night"))))
