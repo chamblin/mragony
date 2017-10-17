@@ -10,4 +10,3 @@
   (post http-requester
         (string->url (getenv "SLACK_INCOMING_WEBHOOK_URL"))
         (jsexpr->bytes (hash 'text message))))
-
