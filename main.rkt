@@ -68,6 +68,5 @@
        [notifications-by-user (group-by notification-user-id em-notifications)]
        [notification-sets-that-were-crappy (filter was-a-crappy-night? notifications-by-user)]
        [users-that-had-a-crappy-night (map user-name-for-notification-set notification-sets-that-were-crappy)])
-  (if (empty? users-that-had-a-crappy-night)
-    (send-message "Nobody had a crappy night")
-    (send-message (string-append (string-join users-that-had-a-crappy-night ", ") " had a crappy on-call last night"))))
+  (unless (empty? users-that-had-a-crappy-night)
+    (send-message (string-append (string-join users-that-had-a-crappy-night ", ") " had a crappy on-call last night.  Please check on them and consider relieving them if they're on-call again tonight."))))
